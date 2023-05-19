@@ -1,5 +1,5 @@
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.forms import ValidationError
 from django.utils import timezone
 
 PRIORITIES = [
@@ -12,7 +12,7 @@ PRIORITIES = [
 def fecha_en_futuro(value):
     if value:
         if value < timezone.now().date():
-            raise ValidationError("La fecha de entrega debe ser posterior a la actual")
+            raise ValidationError("La fecha de entrega debe ser en el futuro")
 
 
 class Subject(models.Model):
@@ -38,7 +38,7 @@ class Task(models.Model):
         verbose_name = "Tarea"
         verbose_name_plural = "Tareas"
 
-    # id = models.AutoField(primary_key=True) se crea automaticamente.
+    # id = models.AutoField(primary_key=True) Se crea automaticamnte
     title = models.CharField(
         verbose_name="título",
         max_length=250,
@@ -52,14 +52,26 @@ class Task(models.Model):
         default=1,
     )
     due_date = models.DateField(
-        verbose_name="fecha de entrega",
+        "Fecha de entrega",
         null=True,
         blank=True,
         default=None,
-        validators=[fecha_en_futuro],
+        validators=[
+            fecha_en_futuro,
+        ],
     )
-    urgent = models.BooleanField(default=False)
-    priority = models.CharField(max_length=1, choices=PRIORITIES, default="N")
+    urgent = models.BooleanField(
+        "Urgente",
+        default=False,
+    )
+    priority = models.CharField(
+        "Prioridad",
+        max_length=1,
+        choices=PRIORITIES,
+        default="N",
+    )
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"tarea #{self.pk}: {self.title}"
+        return f"Tarea #{self.pk}: {self.title}"
